@@ -25,6 +25,7 @@
 -export([start_link/0,
 	 start_link/1]).
 
+%% DB API exports
 -export([get_state/0,
 	 read/2,
 	 write/3]).
@@ -134,20 +135,34 @@ terminate(_Reason, _) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
+
+%%====================================================================
+%% DB API functions
+%%====================================================================
+
 %%===================================================================
 %% @doc
 %% Get the current state of worker
 %% @end
 %%====================================================================
-
 -spec get_state() -> State :: term().
-
 get_state() ->
     gen_server:call(?MODULE, get_state).
 
+%%===================================================================
+%% @doc
+%% Read Operation for Pundun
+%% @end
+%%====================================================================
 read(TabName, Key) ->
     gen_server:call(?MODULE, {read, TabName, Key}).
 
+
+%%===================================================================
+%% @doc
+%% Write Operation for Pundun
+%% @end
+%%====================================================================
 write(TabName, Key, Columns) ->
     gen_server:call(?MODULE, {write, TabName, Key, Columns}).
 
