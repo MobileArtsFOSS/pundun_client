@@ -5,7 +5,8 @@
   {mod, { pundun_client_app, []}},
   {applications,
    [kernel,
-    stdlib
+    stdlib,
+    pbpc
    ]},
   {env,[]},
   {modules, []},

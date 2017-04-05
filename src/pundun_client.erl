@@ -14,28 +14,23 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%%-------------------------------------------------------------------
-%% @doc pundun_client public API
+%% @doc pundun_client API.
 %% @end
 %%%-------------------------------------------------------------------
 
--module(pundun_client_app).
+-module(pundun_client).
 
--behaviour(application).
+%% DB API's
+-export([read/2,
+	 write/3
+	]).
 
-%% Application callbacks
--export([start/2, stop/1]).
+%% ===================================================================
+%% Pundun Database API's
+%% ===================================================================
 
-%%====================================================================
-%% API
-%%====================================================================
+read(TabName, Key) ->
+    pundun_client_worker:read(TabName, Key).
 
-start(_StartType, _StartArgs) ->
-    pundun_client_sup:start_link().
-
-%%--------------------------------------------------------------------
-stop(_State) ->
-    ok.
-
-%%====================================================================
-%% Internal functions
-%%====================================================================
+write(TabName, Key, Columns) ->
+    pundun_client_worker:write(TabName, Key, Columns).
