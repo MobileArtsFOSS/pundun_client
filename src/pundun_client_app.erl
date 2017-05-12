@@ -21,20 +21,29 @@
 -module(pundun_client_app).
 
 -behaviour(application).
-
 %% Application callbacks
 -export([start/2, stop/1]).
+
+%% Hack to make this supervisor as well
+%% This will then just load the modules and make sure a
+%% pundun_client app exists
+-behaviour(supervisor).
+-export([init/1]).
 
 %%====================================================================
 %% API
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-    pundun_client_sup:start_link().
+    supervisor:start_link({local,?MODULE},?MODULE,[]).
 
 %%--------------------------------------------------------------------
 stop(_State) ->
     ok.
+
+init([]) ->
+    %% maybe do something here later.
+    {ok, {{one_for_one,3,10},[]}}.
 
 %%====================================================================
 %% Internal functions
