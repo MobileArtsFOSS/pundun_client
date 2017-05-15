@@ -118,7 +118,7 @@ exec_pundun_command(InvalidNode, _, _) when InvalidNode == undefined;
     {error, db_not_available};
 exec_pundun_command(PNode, Command, Arg) ->
     case rpc:call(PNode, enterdb, Command, Arg, 5000) of
-	{error, {badrpc, _}} ->
+	{badrpc, _} ->
 	    {error, db_not_available};
 	Resp ->
 	    Resp

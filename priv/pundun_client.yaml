@@ -1,0 +1,9 @@
+# Pundun_client	Application Config file
+---
+conn_type: rpc
+pundun_nodes: [pundun1eeaf3@kingfisher]
+connections: [{ip: localhost,
+	       port: 8887,
+	       user: wla,
+	       pass: wla}]
+
