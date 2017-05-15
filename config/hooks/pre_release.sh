@@ -2,5 +2,5 @@
 
 ## Create Mnesia DB folder
 DBLIB=data/db
-mkdir -p $SLIB
+mkdir -p $DBLIB
 # End
