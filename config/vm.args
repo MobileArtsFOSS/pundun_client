@@ -1,0 +1,30 @@
+## Name of the node
+## Generate name based on host and path
+-sname pundun_client
+
+## Cookie for distributed erlang
+-setcookie pundun
+
+## Heartbeat management; auto-restarts VM if it dies or becomes unresponsive
+## (Disabled by default..use with caution!)
+#-heart
+
+## Enable kernel poll and a few async threads
+##+K true
++A 128
+
+## Increase number of concurrent ports/sockets
+##-env ERL_MAX_PORTS 4096
+
+## Tweak GC to run more often
+##-env ERL_FULLSWEEP_AFTER 10
+
+## Enable SMP support even if there is only one logical processor detected
+## Without SMP support, dirty_schedulers were not enabled
+-smp
+
+## Sets the maximum number of simultaneously existing processes.
++P 1048576
+
+## Sets the maximum number of ets tables.
+-env ERL_MAX_ETS_TABLES 8192
