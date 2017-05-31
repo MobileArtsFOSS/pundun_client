@@ -9,7 +9,7 @@ params:
     mnesia_nodes            : [] #List of erlang node names. Empty list defaults to node()
     db_mods                 : [gb_conf_db]
     num_of_versions_to_keep : 5
-    prod_dir_env	    : "ROOTDIR"
+    prod_dir_env	    : "MAE_ROOT"
     configurations          : {
 	pundun_client  : "pundun_client.yaml",
 	gb_log  : "gb_log.yaml"
