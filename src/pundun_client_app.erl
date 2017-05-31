@@ -42,9 +42,14 @@ stop(_State) ->
     ok.
 
 init([]) ->
+    ChildrenSups = get_child_supervisors(),
     %% maybe do something here later.
-    {ok, {{one_for_one,3,10},[]}}.
+    {ok, {{one_for_one,10,1},ChildrenSups}}.
 
 %%====================================================================
 %% Internal functions
 %%====================================================================
+get_child_supervisors() ->
+    GenSup = {pundun_client_sup, {pundun_client_sup, start_link, []},
+	      permanent, 5000, supervisor, [pundun_client_sup]},
+    [GenSup].

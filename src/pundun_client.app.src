@@ -1,5 +1,5 @@
 {application, pundun_client,
- [{description, "An OTP application"},
+ [{description, "Pundun Client"},
   {vsn, "0.1.0"},
   {registered, []},
   {mod, { pundun_client_app, []}},
@@ -9,7 +9,6 @@
    ]},
   {env,[]},
   {modules, []},
-
   {maintainers, []},
   {licenses, []},
   {links, []}
