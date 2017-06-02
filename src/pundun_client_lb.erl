@@ -23,7 +23,7 @@
 
 -include_lib("gb_log/include/gb_log.hrl").
 
--compile(export_all).
+%%-compile(export_all).
 %% API
 -export([start_link/0]).
 
@@ -38,7 +38,10 @@
 	 active_local_nodes/0,
 	 bad_nodes/0,
 	 get_node/0,
-	 get_node/1
+	 get_node/1,
+         check_nodes/1,
+         check_node/1,
+         load_cfg/0
 	]).
 
 -record(state, {born}).
@@ -93,6 +96,15 @@ get_node(_Unknown) ->
 
 get_node() ->
     get_node(local).
+
+load_cfg() ->
+    gen_server:cast(?SERVER, load_cfg).
+
+check_nodes({R, N}) ->
+    check_node({R, N}).
+
+check_node({Reason, Node}) ->
+    gen_server:cast(?SERVER, {check_node, {Reason, Node}}).
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -161,13 +173,18 @@ handle_call(_Request, _From, State) ->
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_cast({bad_rpc, Node}, State) ->
+handle_cast({check_node, {Reason, Node}}, State) ->
     case is_active_node(Node) of
 	true ->
+            ?debug("Check node = ~p due to reason = ~p, but node is responding", [Node, Reason]),
 	    ok;
 	_ ->
+            ?debug("Check node = ~p due to reason = ~p, node is not responding, remove from active nodes", [Node, Reason]),
 	    remove_from_active_nodes(Node)
     end,
+    {noreply, State};
+handle_cast(load_cfg, State) ->
+    load_cfg_local(State),
     {noreply, State};
 handle_cast(_Msg, State) ->
     {noreply, State}.
@@ -213,26 +230,19 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-
-get_pundun_node([]) ->
-    undefined;
-get_pundun_node(undefined) ->
-    undefined;
-get_pundun_node([Node | Rest]) when is_atom(Node) ->
-    case net_adm:ping(Node) of
-	pong ->
-	    Node;
-	pang ->
-	    get_pundun_node(Rest)
-    end;
-get_pundun_node([Node | Rest]) when is_list(Node) ->
-    AtomNode = list_to_atom(Node),
-    case net_adm:ping(AtomNode) of
-	pong ->
-	    AtomNode;
-	pang ->
-	    get_pundun_node(Rest)
-    end.
+load_cfg_local(_State) ->
+    CfgNodes = get_config_nodes(),
+    BadNodes = get_bad_nodes(CfgNodes),
+    ActiveNodes = CfgNodes -- BadNodes,
+    LocalNodes  = get_local_nodes(ActiveNodes),
+    PundunInfo = #{'#mt' => pundun_info,
+		   p_nodes => CfgNodes,
+		   p_active_nodes => ActiveNodes,
+		   p_local_nodes => LocalNodes,
+		   p_bad_nodes => BadNodes},
+    ?debug("Load cfg: pundun_info = ~p", [PundunInfo]),
+    ets:insert(pundun_ctable, {pundun_info, PundunInfo}),
+    ok.
 
 get_bad_nodes(ActiveNodes) ->
     get_bad_nodes(ActiveNodes, []).
@@ -277,20 +287,6 @@ hostname(NodeName) when is_list(NodeName) ->
 	_ ->
 	    {error, {not_proper_node_name, NodeName}}
     end.
-
-check_nodes({bad_rpc, Node}) ->
-    case net_adm:ping(Node) of
-	pong ->
-	    ?debug("Node = ~p is alive and responsive", [Node]),
-	    ok;
-	_ ->
-	    ?debug("Node = ~p is not responsive, remove from list of nodes and to bad_nodes", [Node]),
-	    remove_from_active_nodes(Node),
-	    ok
-    end;
-check_nodes(Else) ->
-    ?debug("check_nodes/1 called with arg: ~p", [Else]),
-    ok.
 
 remove_from_active_nodes(Node) ->
     case ets:lookup(pundun_ctable, pundun_info) of
